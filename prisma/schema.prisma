@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserPicture {
+  JESSICA
+  MAX
+  FELIX
+  BARSIK
+}
+
+enum NoteType {
+  LIGHT
+  MEDIUM
+  HARD
+  MEDICINE
+}
+
+enum ProcedureType {
+  APPOINTMENT
+  EXAMINATION
+  VACCINATION
+}
+
+model User {
+  id          Int           @id @default(autoincrement())
+  name        String        @db.VarChar(64)
+  birthDate   DateTime      @db.Date
+  gender      String        @db.VarChar(1)
+  email       String        @unique @db.VarChar(256)
+  password    String        @db.VarChar(64)
+  picture     UserPicture   @default(JESSICA)
+  Note        Note[]
+  Procedure   Procedure[]
+  Appointment Appointment[]
+}
+
+model Note {
+  id       Int      @id @default(autoincrement())
+  userId   Int
+  user     User     @relation(fields: [userId], references: [id])
+  dateTime DateTime
+  comment  String?  @db.VarChar(128)
+  type     NoteType
+}
+
+model Procedure {
+  id        Int           @id @default(autoincrement())
+  userId    Int
+  user      User          @relation(fields: [userId], references: [id])
+  frequency Int
+  type      ProcedureType
+  lastVisit DateTime
+  name      String        @db.VarChar(128)
+}
+
+model Appointment {
+  id       Int           @id @default(autoincrement())
+  userId   Int
+  user     User          @relation(fields: [userId], references: [id])
+  name     String        @db.VarChar(128)
+  type     ProcedureType
+  dateTime DateTime
+  address  String?       @db.VarChar(256)
+  comment  String?       @db.VarChar(256)
+}
