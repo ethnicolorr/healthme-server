@@ -27,26 +27,31 @@ enum ProcedureType {
   VACCINATION
 }
 
+enum Gender {
+  M
+  F
+}
+
 model User {
   id          Int           @id @default(autoincrement())
   name        String        @db.VarChar(64)
   birthDate   DateTime      @db.Date
-  gender      String        @db.VarChar(1)
+  gender      Gender
   email       String        @unique @db.VarChar(256)
   password    String        @db.VarChar(64)
   picture     UserPicture   @default(JESSICA)
-  Note        Note[]
-  Procedure   Procedure[]
-  Appointment Appointment[]
+  note        Note[]
+  procedure   Procedure[]
+  appointment Appointment[]
 }
 
 model Note {
-  id       Int      @id @default(autoincrement())
-  userId   Int
-  user     User     @relation(fields: [userId], references: [id])
-  dateTime DateTime
-  comment  String?  @db.VarChar(128)
-  type     NoteType
+  id         Int       @id @default(autoincrement())
+  userId     Int
+  user       User      @relation(fields: [userId], references: [id])
+  startedAt  DateTime
+  comment    String?   @db.VarChar(128)
+  type       NoteType
 }
 
 model Procedure {
@@ -55,17 +60,37 @@ model Procedure {
   user      User          @relation(fields: [userId], references: [id])
   frequency Int
   type      ProcedureType
-  lastVisit DateTime
-  name      String        @db.VarChar(128)
+  lastVisit DateTime      @db.Date
+  name      String        @db.VarChar(32)
+}
+
+model ProcedureTemplate {
+  id          Int            @id @default(autoincrement())
+  type        ProcedureType
+  frequency   Int
+  categoryId  Int?
+  category    Category?      @relation(fields: [categoryId], references: [id])
+}
+
+model Category {
+  id                 Int                 @id @default(autoincrement())
+  ageLeft            Int
+  ageRight           Int
+  gender             Gender
+  procedureTemplates ProcedureTemplate[]
 }
 
 model Appointment {
-  id       Int           @id @default(autoincrement())
-  userId   Int
-  user     User          @relation(fields: [userId], references: [id])
-  name     String        @db.VarChar(128)
-  type     ProcedureType
-  dateTime DateTime
-  address  String?       @db.VarChar(256)
-  comment  String?       @db.VarChar(256)
+  id        Int           @id @default(autoincrement())
+  userId    Int
+  user      User          @relation(fields: [userId], references: [id])
+  name      String        @db.VarChar(32)
+  type      ProcedureType
+  startedAt DateTime
+  comment   String?       @db.VarChar(128)
+}
+
+model Advice {
+  id           Int     @id @default(autoincrement())
+  description  String  @db.VarChar(128)
 }

@@ -6,30 +6,40 @@ import {
   Patch,
   Param,
   Delete,
+  Req,
 } from '@nestjs/common';
 import { ProceduresService } from './procedures.service';
 import { CreateProcedureDto } from './dto/create-procedure.dto';
 import { UpdateProcedureDto } from './dto/update-procedure.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import RequestWithUser from '../users/requestWithUser.interface';
+import { ProcedureEntity } from './entities/procedure.entity';
 
 @ApiTags('procedures')
+@ApiBearerAuth()
 @Controller('procedures')
 export class ProceduresController {
   constructor(private readonly proceduresService: ProceduresService) {}
 
   @Post()
-  create(@Body() createProcedureDto: CreateProcedureDto) {
-    return this.proceduresService.create(createProcedureDto);
+  async create(
+    @Req() req: RequestWithUser,
+    @Body() createProcedureDto: CreateProcedureDto,
+  ) {
+    return new ProcedureEntity(
+      await this.proceduresService.create(req.user.id, createProcedureDto),
+    );
   }
 
   @Get()
-  findAll() {
-    return this.proceduresService.findAll();
+  async findAll(@Req() req: RequestWithUser) {
+    const procedures = await this.proceduresService.findAll(req.user.id);
+    return procedures.map((procedure) => new ProcedureEntity(procedure));
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.proceduresService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    return new ProcedureEntity(await this.proceduresService.findOne(+id));
   }
 
   @Patch(':id')

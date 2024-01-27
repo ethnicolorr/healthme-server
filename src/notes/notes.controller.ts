@@ -6,30 +6,40 @@ import {
   Patch,
   Param,
   Delete,
+  Req,
 } from '@nestjs/common';
 import { NotesService } from './notes.service';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import RequestWithUser from '../users/requestWithUser.interface';
+import { NoteEntity } from './entities/note.entity';
 
 @ApiTags('notes')
+@ApiBearerAuth()
 @Controller('notes')
 export class NotesController {
   constructor(private readonly notesService: NotesService) {}
 
   @Post()
-  create(@Body() createNoteDto: CreateNoteDto) {
-    return this.notesService.create(createNoteDto);
+  async create(
+    @Req() req: RequestWithUser,
+    @Body() createNoteDto: CreateNoteDto,
+  ) {
+    return new NoteEntity(
+      await this.notesService.create(req.user.id, createNoteDto),
+    );
   }
 
   @Get()
-  findAll() {
-    return this.notesService.findAll();
+  async findAll(@Req() req: RequestWithUser) {
+    const notes = await this.notesService.findAll(req.user.id);
+    return notes.map((note) => new NoteEntity(note));
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.notesService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    return new NoteEntity(await this.notesService.findOne(+id));
   }
 
   @Patch(':id')

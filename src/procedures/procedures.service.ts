@@ -1,26 +1,42 @@
 import { Injectable } from '@nestjs/common';
 import { CreateProcedureDto } from './dto/create-procedure.dto';
 import { UpdateProcedureDto } from './dto/update-procedure.dto';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ProceduresService {
-  create(createProcedureDto: CreateProcedureDto) {
-    return 'This action adds a new procedure';
+  constructor(private prisma: PrismaService) {}
+
+  create(userId: number, createProcedureDto: CreateProcedureDto) {
+    createProcedureDto.userId = userId;
+    return this.prisma.procedure.create({
+      data: createProcedureDto,
+      include: { user: true },
+    });
   }
 
-  findAll() {
-    return `This action returns all procedures`;
+  findAll(userId: number) {
+    return this.prisma.procedure.findMany({
+      where: { userId },
+      include: { user: true },
+    });
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} procedure`;
+    return this.prisma.procedure.findUnique({
+      where: { id },
+      include: { user: true },
+    });
   }
 
   update(id: number, updateProcedureDto: UpdateProcedureDto) {
-    return `This action updates a #${id} procedure`;
+    return this.prisma.procedure.update({
+      where: { id },
+      data: updateProcedureDto,
+    });
   }
 
   remove(id: number) {
-    return `This action removes a #${id} procedure`;
+    return this.prisma.procedure.delete({ where: { id } });
   }
 }

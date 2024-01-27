@@ -1,26 +1,42 @@
 import { Injectable } from '@nestjs/common';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class AppointmentsService {
-  create(createAppointmentDto: CreateAppointmentDto) {
-    return 'This action adds a new appointment';
+  constructor(private prisma: PrismaService) {}
+
+  create(userId: number, createAppointmentDto: CreateAppointmentDto) {
+    createAppointmentDto.userId = userId;
+    return this.prisma.appointment.create({
+      data: createAppointmentDto,
+      include: { user: true },
+    });
   }
 
-  findAll() {
-    return `This action returns all appointments`;
+  findAll(userId: number) {
+    return this.prisma.appointment.findMany({
+      where: { userId },
+      include: { user: true },
+    });
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} appointment`;
+    return this.prisma.appointment.findUnique({
+      where: { id },
+      include: { user: true },
+    });
   }
 
   update(id: number, updateAppointmentDto: UpdateAppointmentDto) {
-    return `This action updates a #${id} appointment`;
+    return this.prisma.appointment.update({
+      where: { id },
+      data: updateAppointmentDto,
+    });
   }
 
   remove(id: number) {
-    return `This action removes a #${id} appointment`;
+    return this.prisma.appointment.delete({ where: { id } });
   }
 }

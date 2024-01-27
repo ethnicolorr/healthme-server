@@ -19,7 +19,7 @@ export const jwtSecret = process.env.SECRET_KEY;
     JwtModule.register({
       global: true,
       secret: jwtSecret,
-      signOptions: { expiresIn: '30d' },
+      signOptions: { expiresIn: process.env.EXPIRES_IN },
     }),
     UsersModule,
   ],

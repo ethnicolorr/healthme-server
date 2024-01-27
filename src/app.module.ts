@@ -7,6 +7,7 @@ import { AppointmentsModule } from './appointments/appointments.module';
 import { NotesModule } from './notes/notes.module';
 import { ProceduresModule } from './procedures/procedures.module';
 import { AuthModule } from './auth/auth.module';
+import { AdvicesModule } from './advices/advices.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { AuthModule } from './auth/auth.module';
     NotesModule,
     ProceduresModule,
     AuthModule,
+    AdvicesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

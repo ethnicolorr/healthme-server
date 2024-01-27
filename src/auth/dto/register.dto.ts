@@ -4,11 +4,12 @@ import {
   IsNotEmpty,
   IsString,
   MaxLength,
-  MinLength
+  MinLength,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { Gender } from '@prisma/client';
 
-export class CreateUserDto {
+export class RegisterDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty()
@@ -33,9 +34,7 @@ export class CreateUserDto {
   @ApiProperty()
   birthDate: Date;
 
-  @IsString()
   @IsNotEmpty()
   @ApiProperty()
-  @MaxLength(1)
-  gender: string;
+  gender: Gender;
 }

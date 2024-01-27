@@ -6,30 +6,42 @@ import {
   Patch,
   Param,
   Delete,
+  Req,
 } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import RequestWithUser from '../users/requestWithUser.interface';
+import { AppointmentEntity } from './entities/appointment.entity';
 
 @ApiTags('appointments')
+@ApiBearerAuth()
 @Controller('appointments')
 export class AppointmentsController {
   constructor(private readonly appointmentsService: AppointmentsService) {}
 
   @Post()
-  create(@Body() createAppointmentDto: CreateAppointmentDto) {
-    return this.appointmentsService.create(createAppointmentDto);
+  async create(
+    @Req() req: RequestWithUser,
+    @Body() createAppointmentDto: CreateAppointmentDto,
+  ) {
+    return new AppointmentEntity(
+      await this.appointmentsService.create(req.user.id, createAppointmentDto),
+    );
   }
 
   @Get()
-  findAll() {
-    return this.appointmentsService.findAll();
+  async findAll(@Req() req: RequestWithUser) {
+    const appointments = await this.appointmentsService.findAll(req.user.id);
+    return appointments.map(
+      (appointment) => new AppointmentEntity(appointment),
+    );
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.appointmentsService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    return new AppointmentEntity(await this.appointmentsService.findOne(+id));
   }
 
   @Patch(':id')
