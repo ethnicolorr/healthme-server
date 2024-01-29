@@ -30,10 +30,14 @@ export class NotesService {
   }
 
   update(id: number, updateNoteDto: UpdateNoteDto) {
-    return this.prisma.note.update({ where: { id }, data: updateNoteDto });
+    return this.prisma.note.update({
+      where: { id },
+      data: updateNoteDto,
+      include: { user: true },
+    });
   }
 
   remove(id: number) {
-    return this.prisma.note.delete({ where: { id } });
+    return this.prisma.note.delete({ where: { id }, include: { user: true } });
   }
 }

@@ -22,6 +22,15 @@ export class AppointmentsService {
     });
   }
 
+  findNearest(userId: number, currentDate: Date) {
+    return this.prisma.appointment.findMany({
+      where: { userId, startedAt: { gte: currentDate } },
+      include: { user: true },
+      orderBy: { startedAt: 'asc' },
+      take: 2,
+    });
+  }
+
   findOne(id: number) {
     return this.prisma.appointment.findUnique({
       where: { id },

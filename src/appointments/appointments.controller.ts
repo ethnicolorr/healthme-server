@@ -39,6 +39,21 @@ export class AppointmentsController {
     );
   }
 
+  @Get('nearest')
+  async findNearest(@Req() req: RequestWithUser) {
+    const currentDate = new Date();
+    currentDate.setMinutes(
+      currentDate.getMinutes() - currentDate.getTimezoneOffset(),
+    );
+    const appointments = await this.appointmentsService.findNearest(
+      req.user.id,
+      currentDate,
+    );
+    return appointments.map(
+      (appointment) => new AppointmentEntity(appointment),
+    );
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return new AppointmentEntity(await this.appointmentsService.findOne(+id));

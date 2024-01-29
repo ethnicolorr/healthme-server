@@ -23,9 +23,7 @@ export class AuthService {
       roundsOfHashing,
     );
     try {
-      return this.prisma.user.create({
-        data: registerDto,
-      });
+      return this.prisma.user.create({ data: registerDto });
     } catch (e) {
       console.log(e?.code);
     }
