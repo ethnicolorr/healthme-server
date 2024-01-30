@@ -7,9 +7,16 @@ import { Public } from '../shared/decorators/public';
 @Controller('advices')
 export class AdvicesController {
   constructor(private readonly advicesService: AdvicesService) {}
+
   @Get()
   @Public()
   findAll() {
     return this.advicesService.findAll();
+  }
+
+  @Get('/random')
+  @Public()
+  findRandom() {
+    return this.advicesService.findRandom();
   }
 }
