@@ -20,6 +20,9 @@ export class NoteEntity implements Note {
   user: UserEntity;
 
   @ApiProperty()
+  name: string;
+
+  @ApiProperty()
   comment: string;
 
   @ApiProperty()
@@ -27,4 +30,7 @@ export class NoteEntity implements Note {
 
   @ApiProperty()
   startedAt: Date;
+
+  @ApiProperty()
+  temperature: number;
 }

@@ -19,9 +19,10 @@ enum NoteType {
   MEDIUM
   HARD
   MEDICINE
+  TEMPERATURE
 }
 
-enum ProcedureType {
+enum MedProcedureType {
   APPOINTMENT
   EXAMINATION
   VACCINATION
@@ -32,65 +33,75 @@ enum Gender {
   F
 }
 
+enum Unit {
+  DAY
+  WEEK
+  MONTH
+  YEAR
+}
+
 model User {
-  id          Int           @id @default(autoincrement())
-  name        String        @db.VarChar(64)
-  birthDate   DateTime      @db.Date
-  gender      Gender
-  email       String        @unique @db.VarChar(256)
-  password    String        @db.VarChar(64)
-  picture     UserPicture   @default(JESSICA)
-  note        Note[]
-  procedure   Procedure[]
-  appointment Appointment[]
+  id           Int            @id @default(autoincrement())
+  name         String         @db.VarChar(64)
+  birthDate    DateTime       @db.Date
+  gender       Gender
+  email        String         @unique @db.VarChar(128)
+  password     String         @db.VarChar(64)
+  picture      UserPicture    @default(JESSICA)
+  note         Note[]
+  medProcedure MedProcedure[]
+  appointment  Appointment[]
 }
 
 model Note {
-  id         Int       @id @default(autoincrement())
-  userId     Int
-  user       User      @relation(fields: [userId], references: [id])
-  startedAt  DateTime
-  comment    String?   @db.VarChar(128)
-  type       NoteType
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  startedAt   DateTime
+  name        String   @db.VarChar(32) @default("Температура")
+  comment     String?  @db.VarChar(128)
+  type        NoteType
+  temperature Float?
 }
 
-model Procedure {
-  id        Int           @id @default(autoincrement())
+model MedProcedure {
+  id        Int              @id @default(autoincrement())
   userId    Int
-  user      User          @relation(fields: [userId], references: [id])
+  user      User             @relation(fields: [userId], references: [id])
   frequency Int
-  type      ProcedureType
-  lastVisit DateTime      @db.Date
-  name      String        @db.VarChar(32)
+  type      MedProcedureType
+  lastVisit DateTime         @db.Date
+  name      String           @unique @db.VarChar(32)
 }
 
-model ProcedureTemplate {
-  id          Int            @id @default(autoincrement())
-  type        ProcedureType
-  frequency   Int
-  categoryId  Int?
-  category    Category?      @relation(fields: [categoryId], references: [id])
+model MedProcedureTemplate {
+  id         Int              @id @default(autoincrement())
+  type       MedProcedureType
+  frequency  Int
+  unit       Unit
+  categoryId Int?
+  category   Category?        @relation(fields: [categoryId], references: [id])
 }
 
 model Category {
-  id                 Int                 @id @default(autoincrement())
-  ageLeft            Int
-  ageRight           Int
-  gender             Gender
-  procedureTemplates ProcedureTemplate[]
+  id                    Int                    @id @default(autoincrement())
+  ageLeft               Int
+  ageRight              Int
+  gender                Gender
+  medProcedureTemplates MedProcedureTemplate[]
 }
 
 model Appointment {
-  id        Int           @id @default(autoincrement())
+  id        Int              @id @default(autoincrement())
   userId    Int
-  user      User          @relation(fields: [userId], references: [id])
-  name      String        @db.VarChar(32)
-  type      ProcedureType
+  user      User             @relation(fields: [userId], references: [id])
+  name      String           @db.VarChar(32)
+  type      MedProcedureType
   startedAt DateTime
-  comment   String?       @db.VarChar(128)
+  comment   String?          @db.VarChar(128)
 }
 
 model Advice {
-  id           Int     @id @default(autoincrement())
-  description  String  @db.VarChar(128)
+  id          Int    @id @default(autoincrement())
+  description String @db.VarChar(128)
 }
