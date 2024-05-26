@@ -13,7 +13,7 @@ export class RegisterDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty()
-  @MaxLength(256)
+  @MaxLength(100)
   email: string;
 
   @IsString()
@@ -25,7 +25,7 @@ export class RegisterDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty()
-  @MaxLength(64)
+  @MaxLength(50)
   name: string;
 
   @Type(() => Date)

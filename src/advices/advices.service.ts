@@ -10,6 +10,6 @@ export class AdvicesService {
   }
 
   findRandom() {
-    return this.prisma.$queryRaw`SELECT * FROM Advice ORDER BY RAND() LIMIT 1`;
+    return this.prisma.$queryRaw`SELECT * FROM "Advice" ORDER BY RANDOM() LIMIT 1`;
   }
 }

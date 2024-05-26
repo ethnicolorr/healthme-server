@@ -22,7 +22,7 @@ enum NoteType {
   TEMPERATURE
 }
 
-enum MedProcedureType {
+enum ProcedureType {
   APPOINTMENT
   EXAMINATION
   VACCINATION
@@ -33,75 +33,90 @@ enum Gender {
   FEMALE
 }
 
-enum Unit {
-  DAY
-  WEEK
-  MONTH
-  YEAR
-}
-
 model User {
   id           Int            @id @default(autoincrement())
   name         String         @db.VarChar(50)
-  birthDate    DateTime       @db.Date
+  birthDate    DateTime       @db.Date @map("birth_date")
   gender       Gender
   email        String         @unique @db.VarChar(100)
   password     String         @db.VarChar(256)
   picture      UserPicture    @default(JESSICA)
-  note         Note[]
-  medProcedure MedProcedure[]
-  appointment  Appointment[]
+  notes        Note[]
+  procedures   Procedure[]
+  appointments Appointment[]
+
+  @@map("users")
 }
 
 model Note {
   id          Int      @id @default(autoincrement())
-  userId      Int
+  userId      Int      @map("user_id")
   user        User     @relation(fields: [userId], references: [id])
-  startedAt   DateTime
-  name        String   @db.VarChar(32)
-  comment     String?  @db.VarChar(128)
+  startedAt   DateTime @map("started_at")
+  name        String   @db.VarChar(25)
+  comment     String?  @db.VarChar(100)
   type        NoteType
-  temperature Float?
+
+  @@map("notes")
 }
 
-model MedProcedure {
+model Procedure {
   id        Int              @id @default(autoincrement())
-  userId    Int
+  userId    Int              @map("user_id")
   user      User             @relation(fields: [userId], references: [id])
   frequency Int
-  type      MedProcedureType
-  lastVisit DateTime         @db.Date
-  name      String           @unique @db.VarChar(32)
+  type      ProcedureType
+  lastVisit DateTime         @db.Date @map("last_visit")
+  name      String           @db.VarChar(25)
+
+  @@map("procedures")
 }
 
-model MedProcedureTemplate {
-  id         Int              @id @default(autoincrement())
-  type       MedProcedureType
+model Recommendation {
+  id         Int                                  @id @default(autoincrement())
+  type       ProcedureType
+  name       String                               @db.VarChar(25)
   frequency  Int
-  unit       Unit
-  categoryId Int?
-  category   Category?        @relation(fields: [categoryId], references: [id])
+  categories RecommendationsByCategories[]
+
+  @@map("recommendations")
 }
 
 model Category {
-  id                    Int                    @id @default(autoincrement())
-  ageLeft               Int
-  ageRight              Int
-  gender                Gender
-  medProcedureTemplates MedProcedureTemplate[]
+  id                Int                             @id @default(autoincrement())
+  ageLeft           Int                             @map("age_left")
+  ageRight          Int                             @map("age_right")
+  gender            Gender
+  recommendations   RecommendationsByCategories[]
+
+  @@map("categories")
+}
+
+model RecommendationsByCategories {
+  recommendation    Recommendation    @relation(fields: [recommendationId], references: [id])
+  recommendationId  Int               @map("recommendation_id")
+  category          Category          @relation(fields: [categoryId], references: [id])
+  categoryId        Int               @map("category_id")
+
+  @@id([recommendationId, categoryId])
+  @@map("recs_by_categories")
 }
 
 model Appointment {
   id        Int              @id @default(autoincrement())
-  userId    Int
+  userId    Int              @map("user_id")
   user      User             @relation(fields: [userId], references: [id])
-  name      String           @db.VarChar(32)
-  type      MedProcedureType
-  startedAt DateTime
-  comment   String?          @db.VarChar(128)
+  name      String           @db.VarChar(25)
+  type      ProcedureType
+  startedAt DateTime         @map("started_at")
+  comment   String?          @db.VarChar(100)
+
+  @@map("appointments")
 }
 
 model Advice {
   id          Int    @id @default(autoincrement())
-  description String @db.VarChar(128)
+  description String @db.VarChar(50)
+
+  @@map("advices")
 }

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Appointment, MedProcedureType } from '@prisma/client';
+import { Appointment, ProcedureType } from '@prisma/client';
 import { UserEntity } from '../../users/entities/user.entity';
 import { Exclude } from 'class-transformer';
 
@@ -26,7 +26,7 @@ export class AppointmentEntity implements Appointment {
   comment: string;
 
   @ApiProperty()
-  type: MedProcedureType;
+  type: ProcedureType;
 
   @ApiProperty()
   startedAt: Date;

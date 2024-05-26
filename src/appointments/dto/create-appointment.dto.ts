@@ -1,6 +1,6 @@
 import { IsDate, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { MedProcedureType } from '@prisma/client';
+import { ProcedureType } from '@prisma/client';
 import { Type } from 'class-transformer';
 
 export class CreateAppointmentDto {
@@ -8,12 +8,12 @@ export class CreateAppointmentDto {
 
   @IsString()
   @ApiProperty()
-  @MaxLength(32)
+  @MaxLength(25)
   name: string;
 
   @IsNotEmpty()
   @ApiProperty()
-  type: MedProcedureType;
+  type: ProcedureType;
 
   @Type(() => Date)
   @IsDate()
@@ -22,6 +22,6 @@ export class CreateAppointmentDto {
 
   @IsString()
   @ApiProperty()
-  @MaxLength(128)
+  @MaxLength(100)
   comment: string;
 }

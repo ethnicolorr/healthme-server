@@ -5,7 +5,7 @@ import { UsersModule } from './users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { NotesModule } from './notes/notes.module';
-import { MedProceduresModule } from './med-procedures/med-procedures.module';
+import { ProceduresModule } from './med-procedures/procedures.module';
 import { AuthModule } from './auth/auth.module';
 import { AdvicesModule } from './advices/advices.module';
 
@@ -15,7 +15,7 @@ import { AdvicesModule } from './advices/advices.module';
     PrismaModule,
     AppointmentsModule,
     NotesModule,
-    MedProceduresModule,
+    ProceduresModule,
     AuthModule,
     AdvicesModule,
   ],

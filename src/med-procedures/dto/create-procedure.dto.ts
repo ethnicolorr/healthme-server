@@ -6,10 +6,10 @@ import {
   MaxLength,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { MedProcedureType } from '@prisma/client';
+import { ProcedureType } from '@prisma/client';
 import { Type } from 'class-transformer';
 
-export class CreateMedProcedureDto {
+export class CreateProcedureDto {
   userId: number;
 
   @IsInt()
@@ -23,7 +23,7 @@ export class CreateMedProcedureDto {
 
   @IsNotEmpty()
   @ApiProperty()
-  type: MedProcedureType;
+  type: ProcedureType;
 
   @Type(() => Date)
   @IsDate()
