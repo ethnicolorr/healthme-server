@@ -32,25 +32,23 @@ export class AppointmentsController {
       throw new ForbiddenException(
         `Операция недоступна для данного пользователя`,
       );
-    }
-    else {
+    } else {
       return new AppointmentEntity(
-        await this.appointmentsService.create(req.user.id, createAppointmentDto),
+        await this.appointmentsService.create(
+          req.user.id,
+          createAppointmentDto,
+        ),
       );
     }
   }
 
   @Get()
-  async findAll(
-    @Req() req: RequestWithUser,
-    @Param('userId') userId: string,
-  ) {
+  async findAll(@Req() req: RequestWithUser, @Param('userId') userId: string) {
     if (Number(userId) != req.user.id) {
       throw new ForbiddenException(
         `Операция недоступна для данного пользователя`,
       );
-    }
-    else {
+    } else {
       const appointments = await this.appointmentsService.findAll(req.user.id);
       return appointments.map(
         (appointment) => new AppointmentEntity(appointment),
@@ -67,8 +65,7 @@ export class AppointmentsController {
       throw new ForbiddenException(
         `Операция недоступна для данного пользователя`,
       );
-    }
-    else {
+    } else {
       const currentDate = new Date();
       currentDate.setMinutes(
         currentDate.getMinutes() - currentDate.getTimezoneOffset(),

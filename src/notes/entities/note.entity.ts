@@ -30,7 +30,4 @@ export class NoteEntity implements Note {
 
   @ApiProperty()
   startedAt: Date;
-
-  @ApiProperty()
-  temperature: number;
 }

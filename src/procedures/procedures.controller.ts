@@ -27,19 +27,14 @@ export class ProceduresController {
     @Body() createProcedureDto: CreateProcedureDto,
   ) {
     return new ProcedureEntity(
-      await this.proceduresService.create(
-        req.user.id,
-        createProcedureDto,
-      ),
+      await this.proceduresService.create(req.user.id, createProcedureDto),
     );
   }
 
   @Get()
   async findAll(@Req() req: RequestWithUser) {
     const procedures = await this.proceduresService.findAll(req.user.id);
-    return procedures.map(
-      (procedure) => new ProcedureEntity(procedure),
-    );
+    return procedures.map((procedure) => new ProcedureEntity(procedure));
   }
 
   @Get('/schedule')

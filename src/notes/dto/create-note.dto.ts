@@ -2,7 +2,6 @@ import {
   IsDate,
   IsEnum,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
   MaxLength,
@@ -21,24 +20,19 @@ export class CreateNoteDto {
 
   @IsString()
   @ApiProperty()
-  @MaxLength(64)
+  @MaxLength(25)
   @IsNotEmpty()
   name: string;
 
   @IsString()
   @ApiProperty()
-  @MaxLength(128)
+  @MaxLength(100)
   @IsOptional()
   comment: string;
 
   @ApiProperty({ enum: NoteType })
   @IsEnum(NoteType)
   type: NoteType;
-
-  @ApiProperty()
-  @IsNumber()
-  @IsOptional()
-  temperature: number;
 
   @Type(() => Date)
   @IsDate()

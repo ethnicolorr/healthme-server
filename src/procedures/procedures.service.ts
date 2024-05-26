@@ -24,9 +24,9 @@ export class ProceduresService {
 
   findOrder(userId: number) {
     return this.prisma.$queryRaw`
-        SELECT name, DATE_ADD(lastVisit, INTERVAL frequency DAY) date
+        SELECT name, last_visit + frequency date
         FROM procedures
-        WHERE userId = ${userId} 
+        WHERE user_id = ${userId} 
         ORDER BY 2
         `;
   }
