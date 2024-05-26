@@ -51,7 +51,7 @@ model User {
 model Note {
   id          Int      @id @default(autoincrement())
   userId      Int      @map("user_id")
-  user        User     @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   startedAt   DateTime @map("started_at")
   name        String   @db.VarChar(25)
   comment     String?  @db.VarChar(100)
@@ -63,7 +63,7 @@ model Note {
 model Procedure {
   id        Int              @id @default(autoincrement())
   userId    Int              @map("user_id")
-  user      User             @relation(fields: [userId], references: [id])
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   frequency Int
   type      ProcedureType
   lastVisit DateTime         @db.Date @map("last_visit")
@@ -93,9 +93,9 @@ model Category {
 }
 
 model RecommendationsByCategories {
-  recommendation    Recommendation    @relation(fields: [recommendationId], references: [id])
+  recommendation    Recommendation    @relation(fields: [recommendationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   recommendationId  Int               @map("recommendation_id")
-  category          Category          @relation(fields: [categoryId], references: [id])
+  category          Category          @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   categoryId        Int               @map("category_id")
 
   @@id([recommendationId, categoryId])
@@ -105,7 +105,7 @@ model RecommendationsByCategories {
 model Appointment {
   id        Int              @id @default(autoincrement())
   userId    Int              @map("user_id")
-  user      User             @relation(fields: [userId], references: [id])
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   name      String           @db.VarChar(25)
   type      ProcedureType
   startedAt DateTime         @map("started_at")

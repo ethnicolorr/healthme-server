@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsDate,
+  IsEnum,
   IsNotEmpty,
   IsString,
   MaxLength,
@@ -34,7 +35,7 @@ export class RegisterDto {
   @ApiProperty()
   birthDate: Date;
 
-  @IsNotEmpty()
-  @ApiProperty()
+  @IsEnum(Gender)
+  @ApiProperty({ enum: Gender })
   gender: Gender;
 }

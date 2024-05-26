@@ -22,15 +22,6 @@ export class ProceduresService {
     });
   }
 
-  findOrder(userId: number) {
-    return this.prisma.$queryRaw`
-        SELECT name, last_visit + frequency date
-        FROM procedures
-        WHERE user_id = ${userId} 
-        ORDER BY 2
-        `;
-  }
-
   findOne(id: number) {
     return this.prisma.procedure.findUnique({
       where: { id },

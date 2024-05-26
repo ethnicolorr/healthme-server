@@ -1,42 +1,61 @@
-import { Body, Controller, Delete, Get, Patch, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  ForbiddenException,
+  Get,
+  Param,
+  Patch,
+  Req,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 
-import {
-  ApiBearerAuth,
-  ApiCreatedResponse,
-  ApiOkResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { UserEntity } from './entities/user.entity';
 import RequestWithUser from './requestWithUser.interface';
 
-@ApiTags('user')
+@ApiTags('users')
 @ApiBearerAuth()
-@Controller('user')
+@Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get()
+  @Get(':id')
   @ApiOkResponse({ type: UserEntity })
-  async findOne(@Req() req: RequestWithUser) {
-    return new UserEntity(await this.usersService.findOne(req.user.id));
+  async findOne(@Param('id') id: string, @Req() req: RequestWithUser) {
+    const user = await this.usersService.findOne(+id);
+    if (user.id != req.user.id) {
+      throw new ForbiddenException(
+        `Операция недоступна для данного пользователя`,
+      );
+    } else return new UserEntity(user);
   }
 
-  @Patch()
-  @ApiCreatedResponse({ type: UserEntity })
+  @Patch(':id')
+  @ApiOkResponse({ type: UserEntity })
   async update(
     @Req() req: RequestWithUser,
+    @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    return new UserEntity(
-      await this.usersService.update(req.user.id, updateUserDto),
-    );
+    const user = await this.usersService.findOne(+id);
+    if (user.id != req.user.id) {
+      throw new ForbiddenException(
+        `Операция недоступна для данного пользователя`,
+      );
+    } else
+      return new UserEntity(await this.usersService.update(+id, updateUserDto));
   }
 
-  @Delete()
+  @Delete(':id')
   @ApiOkResponse({ type: UserEntity })
-  async remove(@Req() req: RequestWithUser) {
-    return new UserEntity(await this.usersService.remove(req.user.id));
+  async remove(@Req() req: RequestWithUser, @Param('id') id: string) {
+    const user = await this.usersService.findOne(+id);
+    if (user.id != req.user.id) {
+      throw new ForbiddenException(
+        `Операция недоступна для данного пользователя`,
+      );
+    } else return new UserEntity(await this.usersService.remove(req.user.id));
   }
 }

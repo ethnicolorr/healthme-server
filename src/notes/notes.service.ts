@@ -15,9 +15,17 @@ export class NotesService {
     });
   }
 
-  findAll(userId: number) {
+  findAll(userId: number, startedAt: Date) {
     return this.prisma.note.findMany({
-      where: { userId },
+      where: {
+        userId,
+        ...(startedAt && {
+          startedAt: {
+            gte: new Date(startedAt),
+            lt: new Date(startedAt.setDate(startedAt.getDate() + 1)),
+          },
+        }),
+      },
       include: { user: true },
     });
   }

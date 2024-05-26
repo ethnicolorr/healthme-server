@@ -8,101 +8,82 @@ import {
   Delete,
   Req,
   ForbiddenException,
+  Query,
 } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import RequestWithUser from '../users/requestWithUser.interface';
 import { AppointmentEntity } from './entities/appointment.entity';
+import { FindAllAppointmentsDto } from './dto/find-all-appointments.dto';
 
 @ApiTags('appointments')
 @ApiBearerAuth()
-@Controller('users/:userId/appointments')
+@Controller('appointments')
 export class AppointmentsController {
   constructor(private readonly appointmentsService: AppointmentsService) {}
 
   @Post()
   async create(
     @Req() req: RequestWithUser,
-    @Param('userId') userId: string,
     @Body() createAppointmentDto: CreateAppointmentDto,
   ) {
-    if (Number(userId) != req.user.id) {
-      throw new ForbiddenException(
-        `Операция недоступна для данного пользователя`,
-      );
-    } else {
-      return new AppointmentEntity(
-        await this.appointmentsService.create(
-          req.user.id,
-          createAppointmentDto,
-        ),
-      );
-    }
+    return new AppointmentEntity(
+      await this.appointmentsService.create(req.user.id, createAppointmentDto),
+    );
   }
 
   @Get()
-  async findAll(@Req() req: RequestWithUser, @Param('userId') userId: string) {
-    if (Number(userId) != req.user.id) {
-      throw new ForbiddenException(
-        `Операция недоступна для данного пользователя`,
-      );
-    } else {
-      const appointments = await this.appointmentsService.findAll(req.user.id);
-      return appointments.map(
-        (appointment) => new AppointmentEntity(appointment),
-      );
-    }
+  @ApiQuery({ name: 'startedAt', required: false })
+  async findAll(
+    @Req() req: RequestWithUser,
+    @Query() params: FindAllAppointmentsDto,
+  ) {
+    const appointments = await this.appointmentsService.findAll(
+      req.user.id,
+      params.startedAt ?? undefined,
+    );
+    return appointments.map(
+      (appointment) => new AppointmentEntity(appointment),
+    );
   }
 
   @Get('nearest')
-  async findNearest(
-    @Req() req: RequestWithUser,
-    @Param('userId') userId: string,
-  ) {
-    if (Number(userId) != req.user.id) {
-      throw new ForbiddenException(
-        `Операция недоступна для данного пользователя`,
-      );
-    } else {
-      const currentDate = new Date();
-      currentDate.setMinutes(
-        currentDate.getMinutes() - currentDate.getTimezoneOffset(),
-      );
-      const appointments = await this.appointmentsService.findNearest(
-        req.user.id,
-        currentDate,
-      );
-      return appointments.map(
-        (appointment) => new AppointmentEntity(appointment),
-      );
-    }
+  async findNearest(@Req() req: RequestWithUser) {
+    const currentDate = new Date();
+    currentDate.setMinutes(
+      currentDate.getMinutes() - currentDate.getTimezoneOffset(),
+    );
+    const appointments = await this.appointmentsService.findNearest(
+      req.user.id,
+      currentDate,
+    );
+    return appointments.map(
+      (appointment) => new AppointmentEntity(appointment),
+    );
   }
 
   @Get(':id')
-  async findOne(
-    @Param('id') id: string,
-    @Param('userId') userId: string,
-    @Req() req: RequestWithUser,
-  ) {
-    if (Number(userId) != req.user.id) {
+  async findOne(@Param('id') id: string, @Req() req: RequestWithUser) {
+    const appointment = await this.appointmentsService.findOne(+id);
+    if (appointment.user.id != req.user.id) {
       throw new ForbiddenException(
         `Операция недоступна для данного пользователя`,
       );
     } else {
-      return new AppointmentEntity(await this.appointmentsService.findOne(+id));
+      return new AppointmentEntity(appointment);
     }
   }
 
   @Patch(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateAppointmentDto: UpdateAppointmentDto,
-    @Param('userId') userId: string,
     @Req() req: RequestWithUser,
   ) {
-    if (Number(userId) != req.user.id) {
+    const appointment = await this.appointmentsService.findOne(+id);
+    if (appointment.user.id != req.user.id) {
       throw new ForbiddenException(
         `Операция недоступна для данного пользователя`,
       );
@@ -112,12 +93,9 @@ export class AppointmentsController {
   }
 
   @Delete(':id')
-  remove(
-    @Param('id') id: string,
-    @Param('userId') userId: string,
-    @Req() req: RequestWithUser,
-  ) {
-    if (Number(userId) != req.user.id) {
+  async remove(@Param('id') id: string, @Req() req: RequestWithUser) {
+    const appointment = await this.appointmentsService.findOne(+id);
+    if (appointment.user.id != req.user.id) {
       throw new ForbiddenException(
         `Операция недоступна для данного пользователя`,
       );

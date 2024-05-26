@@ -1,10 +1,4 @@
-import {
-  IsDate,
-  IsInt,
-  IsNotEmpty,
-  IsString,
-  MaxLength,
-} from 'class-validator';
+import { IsDate, IsEnum, IsInt, IsString, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { ProcedureType } from '@prisma/client';
 import { Type } from 'class-transformer';
@@ -18,11 +12,11 @@ export class CreateProcedureDto {
 
   @IsString()
   @ApiProperty()
-  @MaxLength(32)
+  @MaxLength(25)
   name: string;
 
-  @IsNotEmpty()
-  @ApiProperty()
+  @IsEnum(ProcedureType)
+  @ApiProperty({ enum: ProcedureType })
   type: ProcedureType;
 
   @Type(() => Date)

@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Req,
+  ForbiddenException,
 } from '@nestjs/common';
 import { ProceduresService } from './procedures.service';
 import { CreateProcedureDto } from './dto/create-procedure.dto';
@@ -38,25 +39,60 @@ export class ProceduresController {
   }
 
   @Get('/schedule')
-  getSchedule(@Req() req: RequestWithUser) {
-    return this.proceduresService.findOrder(req.user.id);
+  async getSchedule(@Req() req: RequestWithUser) {
+    const procedures = await this.proceduresService.findAll(req.user.id);
+    const targetDate = new Date();
+    targetDate.setFullYear(targetDate.getFullYear() + 1);
+    const schedule = [];
+
+    for (let i = 0; i < procedures.length; i++) {
+      const p = procedures[i];
+      const lastVisit = p.lastVisit;
+
+      schedule.push(new ProcedureEntity(structuredClone(p)));
+
+      while (lastVisit < targetDate) {
+        lastVisit.setDate(p.lastVisit.getDate() + p.frequency);
+        p.lastVisit = lastVisit;
+        schedule.push(new ProcedureEntity(structuredClone(p)));
+      }
+    }
+
+    schedule.sort((a, b) => (a.lastVisit > b.lastVisit ? 1 : -1));
+    return schedule;
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return new ProcedureEntity(await this.proceduresService.findOne(+id));
+  async findOne(@Param('id') id: string, @Req() req: RequestWithUser) {
+    const procedure = await this.proceduresService.findOne(+id);
+    if (procedure.user.id != req.user.id) {
+      throw new ForbiddenException(
+        `Операция недоступна для данного пользователя`,
+      );
+    } else return new ProcedureEntity(procedure);
   }
 
   @Patch(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateProcedureDto: UpdateProcedureDto,
+    @Req() req: RequestWithUser,
   ) {
-    return this.proceduresService.update(+id, updateProcedureDto);
+    const procedure = await this.proceduresService.findOne(+id);
+    if (procedure.user.id != req.user.id) {
+      throw new ForbiddenException(
+        `Операция недоступна для данного пользователя`,
+      );
+    } else return this.proceduresService.update(+id, updateProcedureDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.proceduresService.remove(+id);
+  async remove(@Param('id') id: string, @Req() req: RequestWithUser) {
+    const procedure = await this.proceduresService.findOne(+id);
+    if (procedure.user.id != req.user.id) {
+      throw new ForbiddenException(
+        `Операция недоступна для данного пользователя`,
+      );
+    } else return this.proceduresService.remove(+id);
   }
 }

@@ -8,92 +8,73 @@ import {
   Delete,
   Req,
   ForbiddenException,
+  Query,
 } from '@nestjs/common';
 import { NotesService } from './notes.service';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import RequestWithUser from '../users/requestWithUser.interface';
 import { NoteEntity } from './entities/note.entity';
+import { FindAllNotesDto } from './dto/find-all-notes.dto';
 
 @ApiTags('notes')
 @ApiBearerAuth()
-@Controller('users/:userId/notes')
+@Controller('notes')
 export class NotesController {
   constructor(private readonly notesService: NotesService) {}
 
   @Post()
   async create(
     @Req() req: RequestWithUser,
-    @Param('userId') userId: string,
     @Body() createNoteDto: CreateNoteDto,
   ) {
-    if (Number(userId) != req.user.id) {
-      throw new ForbiddenException(
-        `Операция недоступна для данного пользователя`,
-      );
-    } else {
-      return new NoteEntity(
-        await this.notesService.create(req.user.id, createNoteDto),
-      );
-    }
+    return new NoteEntity(
+      await this.notesService.create(req.user.id, createNoteDto),
+    );
   }
 
   @Get()
-  async findAll(@Req() req: RequestWithUser, @Param('userId') userId: string) {
-    if (Number(userId) != req.user.id) {
-      throw new ForbiddenException(
-        `Операция недоступна для данного пользователя`,
-      );
-    } else {
-      const notes = await this.notesService.findAll(req.user.id);
-      return notes.map((note) => new NoteEntity(note));
-    }
+  @ApiQuery({ name: 'startedAt', required: false })
+  async findAll(@Query() params: FindAllNotesDto, @Req() req: RequestWithUser) {
+    const notes = await this.notesService.findAll(
+      req.user.id,
+      params.startedAt ?? undefined,
+    );
+    return notes.map((note) => new NoteEntity(note));
   }
 
   @Get(':id')
-  async findOne(
-    @Param('id') id: string,
-    @Param('userId') userId: string,
-    @Req() req: RequestWithUser,
-  ) {
-    if (Number(userId) != req.user.id) {
+  async findOne(@Param('id') id: string, @Req() req: RequestWithUser) {
+    const note = await this.notesService.findOne(+id);
+    if (note.user.id != req.user.id) {
       throw new ForbiddenException(
         `Операция недоступна для данного пользователя`,
       );
-    } else {
-      return new NoteEntity(await this.notesService.findOne(+id));
-    }
+    } else return new NoteEntity(note);
   }
 
   @Patch(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateNoteDto: UpdateNoteDto,
-    @Param('userId') userId: string,
     @Req() req: RequestWithUser,
   ) {
-    if (Number(userId) != req.user.id) {
+    const note = await this.notesService.findOne(+id);
+    if (note.userId != req.user.id) {
       throw new ForbiddenException(
         `Операция недоступна для данного пользователя`,
       );
-    } else {
-      return this.notesService.update(+id, updateNoteDto);
-    }
+    } else return this.notesService.update(+id, updateNoteDto);
   }
 
   @Delete(':id')
-  remove(
-    @Param('id') id: string,
-    @Param('userId') userId: string,
-    @Req() req: RequestWithUser,
-  ) {
-    if (Number(userId) != req.user.id) {
+  async remove(@Param('id') id: string, @Req() req: RequestWithUser) {
+    const note = await this.notesService.findOne(+id);
+    if (note.userId != req.user.id) {
       throw new ForbiddenException(
         `Операция недоступна для данного пользователя`,
       );
-    } else {
-      return this.notesService.remove(+id);
-    }
+    } else return this.notesService.remove(+id);
   }
 }

@@ -1,4 +1,4 @@
-import { IsDate, IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { IsDate, IsEnum, IsString, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { ProcedureType } from '@prisma/client';
 import { Type } from 'class-transformer';
@@ -11,8 +11,8 @@ export class CreateAppointmentDto {
   @MaxLength(25)
   name: string;
 
-  @IsNotEmpty()
-  @ApiProperty()
+  @ApiProperty({ enum: ProcedureType })
+  @IsEnum(ProcedureType)
   type: ProcedureType;
 
   @Type(() => Date)
