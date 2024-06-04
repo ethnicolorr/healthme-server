@@ -28,7 +28,7 @@ CREATE TABLE "notes" (
     "id" SERIAL NOT NULL,
     "user_id" INTEGER NOT NULL,
     "started_at" TIMESTAMP(3) NOT NULL,
-    "name" VARCHAR(25) NOT NULL,
+    "name" VARCHAR(50) NOT NULL,
     "comment" VARCHAR(100),
     "type" "NoteType" NOT NULL,
 
@@ -41,8 +41,8 @@ CREATE TABLE "procedures" (
     "user_id" INTEGER NOT NULL,
     "frequency" INTEGER NOT NULL,
     "type" "ProcedureType" NOT NULL,
-    "last_visit" DATE NOT NULL,
-    "name" VARCHAR(25) NOT NULL,
+    "last_visit" DATE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "name" VARCHAR(50) NOT NULL,
 
     CONSTRAINT "procedures_pkey" PRIMARY KEY ("id")
 );
@@ -51,8 +51,9 @@ CREATE TABLE "procedures" (
 CREATE TABLE "recommendations" (
     "id" SERIAL NOT NULL,
     "type" "ProcedureType" NOT NULL,
-    "name" VARCHAR(25) NOT NULL,
+    "name" VARCHAR(50) NOT NULL,
     "frequency" INTEGER NOT NULL,
+    "category_id" INTEGER,
 
     CONSTRAINT "recommendations_pkey" PRIMARY KEY ("id")
 );
@@ -60,26 +61,18 @@ CREATE TABLE "recommendations" (
 -- CreateTable
 CREATE TABLE "categories" (
     "id" SERIAL NOT NULL,
-    "age_left" INTEGER NOT NULL,
-    "age_right" INTEGER NOT NULL,
+    "age_left" INTEGER,
+    "age_right" INTEGER,
     "gender" "Gender" NOT NULL,
 
     CONSTRAINT "categories_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "recs_by_categories" (
-    "recommendation_id" INTEGER NOT NULL,
-    "category_id" INTEGER NOT NULL,
-
-    CONSTRAINT "recs_by_categories_pkey" PRIMARY KEY ("recommendation_id","category_id")
-);
-
--- CreateTable
 CREATE TABLE "appointments" (
     "id" SERIAL NOT NULL,
     "user_id" INTEGER NOT NULL,
-    "name" VARCHAR(25) NOT NULL,
+    "name" VARCHAR(50) NOT NULL,
     "type" "ProcedureType" NOT NULL,
     "started_at" TIMESTAMP(3) NOT NULL,
     "comment" VARCHAR(100),
@@ -88,27 +81,36 @@ CREATE TABLE "appointments" (
 );
 
 -- CreateTable
-CREATE TABLE "Advice" (
+CREATE TABLE "advices" (
     "id" SERIAL NOT NULL,
     "description" VARCHAR(50) NOT NULL,
 
-    CONSTRAINT "Advice_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "advices_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "medicines" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "indication" TEXT NOT NULL,
+    "contraindication" TEXT NOT NULL,
+    "side_effects" TEXT NOT NULL,
+    "dosage" TEXT NOT NULL,
+
+    CONSTRAINT "medicines_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 -- AddForeignKey
-ALTER TABLE "notes" ADD CONSTRAINT "notes_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "notes" ADD CONSTRAINT "notes_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "procedures" ADD CONSTRAINT "procedures_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "procedures" ADD CONSTRAINT "procedures_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "recs_by_categories" ADD CONSTRAINT "recs_by_categories_recommendation_id_fkey" FOREIGN KEY ("recommendation_id") REFERENCES "recommendations"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "recommendations" ADD CONSTRAINT "recommendations_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "categories"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "recs_by_categories" ADD CONSTRAINT "recs_by_categories_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "appointments" ADD CONSTRAINT "appointments_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "appointments" ADD CONSTRAINT "appointments_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

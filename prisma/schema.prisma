@@ -53,7 +53,7 @@ model Note {
   userId      Int      @map("user_id")
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   startedAt   DateTime @map("started_at")
-  name        String   @db.VarChar(25)
+  name        String   @db.VarChar(50)
   comment     String?  @db.VarChar(100)
   type        NoteType
 
@@ -66,47 +66,38 @@ model Procedure {
   user      User             @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   frequency Int
   type      ProcedureType
-  lastVisit DateTime         @db.Date @map("last_visit")
-  name      String           @db.VarChar(25)
+  lastVisit DateTime         @db.Date @map("last_visit") @default(now())
+  name      String           @db.VarChar(50)
 
   @@map("procedures")
 }
 
 model Recommendation {
-  id         Int                                  @id @default(autoincrement())
+  id         Int             @id @default(autoincrement())
   type       ProcedureType
-  name       String                               @db.VarChar(25)
+  name       String          @db.VarChar(50)
   frequency  Int
-  categories RecommendationsByCategories[]
+  categoryId Int?            @map("category_id")
+  category   Category?       @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@map("recommendations")
 }
 
 model Category {
   id                Int                             @id @default(autoincrement())
-  ageLeft           Int                             @map("age_left")
-  ageRight          Int                             @map("age_right")
+  ageLeft           Int?                            @map("age_left")
+  ageRight          Int?                            @map("age_right")
   gender            Gender
-  recommendations   RecommendationsByCategories[]
+  recommendations   Recommendation[]
 
   @@map("categories")
-}
-
-model RecommendationsByCategories {
-  recommendation    Recommendation    @relation(fields: [recommendationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  recommendationId  Int               @map("recommendation_id")
-  category          Category          @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  categoryId        Int               @map("category_id")
-
-  @@id([recommendationId, categoryId])
-  @@map("recs_by_categories")
 }
 
 model Appointment {
   id        Int              @id @default(autoincrement())
   userId    Int              @map("user_id")
   user      User             @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  name      String           @db.VarChar(25)
+  name      String           @db.VarChar(50)
   type      ProcedureType
   startedAt DateTime         @map("started_at")
   comment   String?          @db.VarChar(100)
@@ -119,4 +110,15 @@ model Advice {
   description String @db.VarChar(50)
 
   @@map("advices")
+}
+
+model Medicine {
+  id                 Int       @id @default(autoincrement())
+  name               String
+  indication         String
+  contraindication   String
+  sideEffects        String    @map("side_effects")
+  dosage             String
+
+  @@map("medicines")
 }
