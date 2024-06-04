@@ -1,14 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Procedure, ProcedureType } from '@prisma/client';
 import { UserEntity } from '../../users/entities/user.entity';
-import { Exclude } from 'class-transformer';
+import { Exclude, Type } from 'class-transformer';
 
 export class ProcedureEntity implements Procedure {
-  constructor({ user, ...data }: Partial<ProcedureEntity>) {
-    Object.assign(this, data);
-    this.user = new UserEntity(user);
-  }
-
   @ApiProperty()
   id: number;
 
@@ -16,6 +11,7 @@ export class ProcedureEntity implements Procedure {
   @ApiProperty()
   userId: number;
 
+  @Type(() => UserEntity)
   @ApiProperty()
   user: UserEntity;
 

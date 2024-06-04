@@ -33,10 +33,14 @@ export class ProceduresService {
     return this.prisma.procedure.update({
       where: { id },
       data: updateProcedureDto,
+      include: { user: true },
     });
   }
 
   remove(id: number) {
-    return this.prisma.procedure.delete({ where: { id } });
+    return this.prisma.procedure.delete({
+      where: { id },
+      include: { user: true },
+    });
   }
 }

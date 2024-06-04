@@ -15,6 +15,7 @@ import { UpdateProcedureDto } from './dto/update-procedure.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import RequestWithUser from '../users/requestWithUser.interface';
 import { ProcedureEntity } from './entities/procedure.entity';
+import { plainToInstance } from 'class-transformer';
 
 @ApiTags('procedures')
 @ApiBearerAuth()
@@ -27,7 +28,8 @@ export class ProceduresController {
     @Req() req: RequestWithUser,
     @Body() createProcedureDto: CreateProcedureDto,
   ) {
-    return new ProcedureEntity(
+    return plainToInstance(
+      ProcedureEntity,
       await this.proceduresService.create(req.user.id, createProcedureDto),
     );
   }
@@ -35,7 +37,9 @@ export class ProceduresController {
   @Get()
   async findAll(@Req() req: RequestWithUser) {
     const procedures = await this.proceduresService.findAll(req.user.id);
-    return procedures.map((procedure) => new ProcedureEntity(procedure));
+    return procedures.map((procedure) =>
+      plainToInstance(ProcedureEntity, procedure),
+    );
   }
 
   @Get('/schedule')
@@ -49,12 +53,12 @@ export class ProceduresController {
       const p = procedures[i];
       const lastVisit = p.lastVisit;
 
-      schedule.push(new ProcedureEntity(structuredClone(p)));
+      schedule.push(plainToInstance(ProcedureEntity, structuredClone(p)));
 
       while (lastVisit < targetDate) {
         lastVisit.setDate(p.lastVisit.getDate() + p.frequency);
         p.lastVisit = lastVisit;
-        schedule.push(new ProcedureEntity(structuredClone(p)));
+        schedule.push(plainToInstance(ProcedureEntity, structuredClone(p)));
       }
     }
 
@@ -69,7 +73,7 @@ export class ProceduresController {
       throw new ForbiddenException(
         `Операция недоступна для данного пользователя`,
       );
-    } else return new ProcedureEntity(procedure);
+    } else return plainToInstance(ProcedureEntity, procedure);
   }
 
   @Patch(':id')
@@ -83,7 +87,11 @@ export class ProceduresController {
       throw new ForbiddenException(
         `Операция недоступна для данного пользователя`,
       );
-    } else return this.proceduresService.update(+id, updateProcedureDto);
+    } else
+      return plainToInstance(
+        ProcedureEntity,
+        this.proceduresService.update(+id, updateProcedureDto),
+      );
   }
 
   @Delete(':id')
@@ -93,6 +101,10 @@ export class ProceduresController {
       throw new ForbiddenException(
         `Операция недоступна для данного пользователя`,
       );
-    } else return this.proceduresService.remove(+id);
+    } else
+      return plainToInstance(
+        ProcedureEntity,
+        this.proceduresService.remove(+id),
+      );
   }
 }

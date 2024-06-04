@@ -50,6 +50,7 @@ export class AppointmentsService {
     return this.prisma.appointment.update({
       where: { id },
       data: updateAppointmentDto,
+      include: { user: true },
     });
   }
 

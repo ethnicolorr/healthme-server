@@ -17,6 +17,7 @@ import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import RequestWithUser from '../users/requestWithUser.interface';
 import { NoteEntity } from './entities/note.entity';
 import { FindAllNotesDto } from './dto/find-all-notes.dto';
+import { plainToInstance } from 'class-transformer';
 
 @ApiTags('notes')
 @ApiBearerAuth()
@@ -29,7 +30,8 @@ export class NotesController {
     @Req() req: RequestWithUser,
     @Body() createNoteDto: CreateNoteDto,
   ) {
-    return new NoteEntity(
+    return plainToInstance(
+      NoteEntity,
       await this.notesService.create(req.user.id, createNoteDto),
     );
   }
@@ -41,7 +43,7 @@ export class NotesController {
       req.user.id,
       params.startedAt ?? undefined,
     );
-    return notes.map((note) => new NoteEntity(note));
+    return notes.map((note) => plainToInstance(NoteEntity, note));
   }
 
   @Get(':id')
@@ -51,7 +53,7 @@ export class NotesController {
       throw new ForbiddenException(
         `Операция недоступна для данного пользователя`,
       );
-    } else return new NoteEntity(note);
+    } else return plainToInstance(NoteEntity, note);
   }
 
   @Patch(':id')
@@ -65,7 +67,11 @@ export class NotesController {
       throw new ForbiddenException(
         `Операция недоступна для данного пользователя`,
       );
-    } else return this.notesService.update(+id, updateNoteDto);
+    } else
+      return plainToInstance(
+        NoteEntity,
+        this.notesService.update(+id, updateNoteDto),
+      );
   }
 
   @Delete(':id')
@@ -75,6 +81,6 @@ export class NotesController {
       throw new ForbiddenException(
         `Операция недоступна для данного пользователя`,
       );
-    } else return this.notesService.remove(+id);
+    } else return plainToInstance(NoteEntity, this.notesService.remove(+id));
   }
 }

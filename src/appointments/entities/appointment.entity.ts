@@ -1,14 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Appointment, ProcedureType } from '@prisma/client';
 import { UserEntity } from '../../users/entities/user.entity';
-import { Exclude } from 'class-transformer';
+import { Exclude, Type } from 'class-transformer';
 
 export class AppointmentEntity implements Appointment {
-  constructor({ user, ...data }: Partial<AppointmentEntity>) {
-    Object.assign(this, data);
-    this.user = new UserEntity(user);
-  }
-
   @ApiProperty()
   id: number;
 
@@ -17,6 +12,7 @@ export class AppointmentEntity implements Appointment {
   userId: number;
 
   @ApiProperty()
+  @Type(() => UserEntity)
   user: UserEntity;
 
   @ApiProperty()

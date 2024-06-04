@@ -17,6 +17,7 @@ import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import RequestWithUser from '../users/requestWithUser.interface';
 import { AppointmentEntity } from './entities/appointment.entity';
 import { FindAllAppointmentsDto } from './dto/find-all-appointments.dto';
+import { plainToInstance } from 'class-transformer';
 
 @ApiTags('appointments')
 @ApiBearerAuth()
@@ -29,7 +30,8 @@ export class AppointmentsController {
     @Req() req: RequestWithUser,
     @Body() createAppointmentDto: CreateAppointmentDto,
   ) {
-    return new AppointmentEntity(
+    return plainToInstance(
+      AppointmentEntity,
       await this.appointmentsService.create(req.user.id, createAppointmentDto),
     );
   }
@@ -44,8 +46,8 @@ export class AppointmentsController {
       req.user.id,
       params.startedAt ?? undefined,
     );
-    return appointments.map(
-      (appointment) => new AppointmentEntity(appointment),
+    return appointments.map((appointment) =>
+      plainToInstance(AppointmentEntity, appointment),
     );
   }
 
@@ -59,8 +61,8 @@ export class AppointmentsController {
       req.user.id,
       currentDate,
     );
-    return appointments.map(
-      (appointment) => new AppointmentEntity(appointment),
+    return appointments.map((appointment) =>
+      plainToInstance(AppointmentEntity, appointment),
     );
   }
 
@@ -72,7 +74,7 @@ export class AppointmentsController {
         `Операция недоступна для данного пользователя`,
       );
     } else {
-      return new AppointmentEntity(appointment);
+      return plainToInstance(AppointmentEntity, appointment);
     }
   }
 
@@ -88,7 +90,12 @@ export class AppointmentsController {
         `Операция недоступна для данного пользователя`,
       );
     } else {
-      return this.appointmentsService.update(+id, updateAppointmentDto);
+      const appointment = await this.appointmentsService.update(
+        +id,
+        updateAppointmentDto,
+      );
+
+      return plainToInstance(AppointmentEntity, appointment);
     }
   }
 

@@ -14,6 +14,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { UserEntity } from './entities/user.entity';
 import RequestWithUser from './requestWithUser.interface';
+import { plainToInstance } from 'class-transformer';
 
 @ApiTags('users')
 @ApiBearerAuth()
@@ -29,7 +30,7 @@ export class UsersController {
       throw new ForbiddenException(
         `Операция недоступна для данного пользователя`,
       );
-    } else return new UserEntity(user);
+    } else return plainToInstance(UserEntity, user);
   }
 
   @Patch(':id')
@@ -45,7 +46,10 @@ export class UsersController {
         `Операция недоступна для данного пользователя`,
       );
     } else
-      return new UserEntity(await this.usersService.update(+id, updateUserDto));
+      return plainToInstance(
+        UserEntity,
+        await this.usersService.update(+id, updateUserDto),
+      );
   }
 
   @Delete(':id')
@@ -56,6 +60,10 @@ export class UsersController {
       throw new ForbiddenException(
         `Операция недоступна для данного пользователя`,
       );
-    } else return new UserEntity(await this.usersService.remove(req.user.id));
+    } else
+      return plainToInstance(
+        UserEntity,
+        await this.usersService.remove(req.user.id),
+      );
   }
 }

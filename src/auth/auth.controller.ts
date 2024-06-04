@@ -6,6 +6,7 @@ import { LoginDto } from './dto/login.dto';
 import { Public } from '../shared/decorators/public';
 import { UserEntity } from '../users/entities/user.entity';
 import { RegisterDto } from './dto/register.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -16,7 +17,10 @@ export class AuthController {
   @Public()
   @ApiCreatedResponse({ type: UserEntity })
   async create(@Body() registerDto: RegisterDto) {
-    return new UserEntity(await this.authService.create(registerDto));
+    return plainToInstance(
+      UserEntity,
+      await this.authService.create(registerDto),
+    );
   }
 
   @Post('login')

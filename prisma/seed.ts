@@ -1,6 +1,7 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 import readXlsxFile from 'read-excel-file/node';
 import { catSchema, recSchema, advSchema } from './res/schemas';
+import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 const filepath = 'prisma/res/recommendations.xlsx';
@@ -14,7 +15,7 @@ async function main() {
       name: 'Юлия',
       birthDate: '2001-11-06T00:00:00.000Z',
       gender: 'FEMALE',
-      password: 'testPassword',
+      password: bcrypt.hashSync('testPassword', 10),
       appointments: {
         create: {
           name: 'Стоматолог',
